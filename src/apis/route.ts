@@ -25,6 +25,14 @@ export const Route = {
     logout(token: string) {
         return urlcat(BASE_URL, '/user/logout', { token })
     },
+
+    /**
+         * @url https://www.pornhub.com/user/logout
+         */
+    rate(voteUrl: string) {
+        return urlcat(BASE_URL, voteUrl)
+    },
+
     /**
      * @url https://www.pornhub.com/video/search_autocomplete?q=random&orientation=straight&pornstars=1&alt=0&token=xxx
      */

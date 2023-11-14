@@ -52,13 +52,16 @@ export interface VideoPage {
     uploadDate: Date
 }
 
-export async function videoPage(engine: Engine, urlOrId: string): Promise<VideoPage> {
+export async function videoPage(engine: Engine, urlOrId: string, onlyDOM?: boolean): Promise<VideoPage | string> {
     const id = UrlParser.getVideoID(urlOrId)
     const url = Route.videoPage(id)
     const res = await engine.request.get(url)
     const html = await res.text()
     const $ = getCheerio(html)
 
+    if (onlyDOM) {
+        return html
+    }
     return {
         id,
         url,
@@ -101,7 +104,9 @@ export function parseByDom(html: string, $: CheerioAPI) {
     const duration = +getAttribute<number>(durationMeta, 'content', 0)
     const durationFormatted = toHHMMSS(duration)
 
+
     return {
+
         title,
         views,
         vote,
@@ -115,6 +120,7 @@ export function parseByDom(html: string, $: CheerioAPI) {
         categories,
         duration,
         durationFormatted,
+
         ...parseByLdJson($),
     }
 }

@@ -16,7 +16,8 @@ export class Engine {
         this.request.setHeader('Origin', this.BASE_URL)
         this.request.setHeader('Referer', `${this.BASE_URL}/`)
         this.request.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36')
-
+        this.request.setHeader('x-svvt', '1')
+        
         this.request.setCookie('platform', 'pc')
         // bypass age confirmation
         this.request.setCookie('accessAgeDisclaimerPH', '1')

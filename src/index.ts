@@ -1,4 +1,5 @@
-import { Route, getMainPage, login, logout } from './apis'
+import { CycleTLSClient } from 'cycletls'
+import { Route, getMainPage, login, logout, rate } from './apis'
 import { getAutoComplete } from './apis/autoComplete'
 import { getToken } from './apis/getToken'
 import { Engine } from './core/engine'
@@ -73,12 +74,23 @@ export class PornHub {
         this.engine.request.setAgent(agent)
     }
 
+    setProxy(proxy: string) {
+        this.engine.request.setProxy(proxy)
+    }
+
     setHeader(key: string, value: string) {
         this.engine.request.setHeader(key, value)
     }
 
+    getCookieString() {
+        return this.engine.request.getCookieString()
+    }
     getCookies() {
         return this.engine.request.getCookies()
+    }
+
+    setCycleTLSClient(client: CycleTLSClient) {
+        this.engine.request.setCycleTLSClient(client)
     }
 
     getCookie(key: string) {
@@ -117,6 +129,38 @@ export class PornHub {
     }
 
     /**
+     * Logout from Pornhub.com.
+     */
+    async likeVideo(urlOrId: string, path?: string) {
+        if (!this.engine.warmedUp && !path) {
+            // make a call to the main page to get the cookies.
+            // PornHub will redirect you to a corn video if you don't have a proper cookie set.
+            // See issue: [#27 Video been redirected to a corn video](https://github.com/pionxzh/Pornhub.js/issues/27)\
+            console.log("likeVideo warmup")
+            await getMainPage(this.engine)
+            console.log("likeVideo warmup complete")
+            this.engine.warmedUp = true
+        }
+        console.log("likeVideo start")
+        return rate(this.engine, urlOrId, "like", path)
+    }
+    
+    async dislikeVideo(urlOrId: string, path?: string) {
+        if (!this.engine.warmedUp && !path) {
+            // make a call to the main page to get the cookies.
+            // PornHub will redirect you to a corn video if you don't have a proper cookie set.
+            // See issue: [#27 Video been redirected to a corn video](https://github.com/pionxzh/Pornhub.js/issues/27)\
+            console.log("likeVideo warmup")
+            await getMainPage(this.engine)
+            console.log("likeVideo warmup complete")
+            this.engine.warmedUp = true
+        }
+        console.log("likeVideo start")
+        return rate(this.engine, urlOrId, "dislike", path)
+    }
+    
+
+    /**
      * Get token from Pornhub.com.
      * Most of pornhub's api need this token.
      * You can cache this token to avoid frequent requests (I'm not sure about the expiration time!).
@@ -127,6 +171,9 @@ export class PornHub {
     getToken() {
         return getToken(this.engine)
     }
+
+
+
 
     /**
      * Get video information by url/ID
