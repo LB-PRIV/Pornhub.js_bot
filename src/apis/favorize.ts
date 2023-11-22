@@ -14,16 +14,17 @@ export interface FavouriteResult {
     success: string
   }
   
-export async function favourite(engine: Engine, urlOrId: string): Promise<FavouriteResult> {
+export async function favorize(engine: Engine, urlOrId: string): Promise<FavouriteResult> {
     
     const token = getToken(engine);
     const videoID = UrlParser.getVideoID(urlOrId)
 
-    const res = await engine.request.post(Route.favourite(), {
+    const res = await engine.request.post(Route.favorize(), {
         token,
         toggle: 1,
         id: videoID,
     })
+    
     const result = await res.json() as FavouriteResult
     return result
 }

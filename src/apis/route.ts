@@ -27,10 +27,17 @@ export const Route = {
     },
 
     /**
-         * @url https://www.pornhub.com/user/logout
-         */
+     * @url https://www.pornhub.com/user/logout
+     */
     rate(voteUrl: string) {
         return urlcat(BASE_URL, voteUrl)
+    },
+
+        /**
+     * @url https://www.pornhub.com/user/logout
+     */
+    favorize() {
+        return urlcat(BASE_URL, '/video/favourite')
     },
 
     /**

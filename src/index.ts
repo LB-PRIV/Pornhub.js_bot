@@ -21,6 +21,7 @@ import { videoSearch } from './scrapers/search/video'
 import type { AlbumSearchOptions, AutoCompleteOptions, GifSearchOptions, PornstarSearchOptions, RecommendedOptions, VideoSearchOptions } from './types'
 import type { ModelVideoListOptions, PornstarListOptions, VideoListOptions } from './types/ListOptions'
 import type { RequestInit } from 'node-fetch'
+import { favorize } from './apis/favorize'
 
 export * from './types'
 export * from './utils/error'
@@ -155,9 +156,23 @@ export class PornHub {
             console.log("likeVideo warmup complete")
             this.engine.warmedUp = true
         }
-        console.log("likeVideo start")
         return rate(this.engine, urlOrId, "dislike", path)
     }
+
+    
+    async favorizeVideo(urlOrId: string) {
+        if (!this.engine.warmedUp) {
+            // make a call to the main page to get the cookies.
+            // PornHub will redirect you to a corn video if you don't have a proper cookie set.
+            // See issue: [#27 Video been redirected to a corn video](https://github.com/pionxzh/Pornhub.js/issues/27)\
+            console.log("likeVideo warmup")
+            await getMainPage(this.engine)
+            console.log("likeVideo warmup complete")
+            this.engine.warmedUp = true
+        }
+        return favorize(this.engine, urlOrId)
+    }
+
     
 
     /**
@@ -171,8 +186,6 @@ export class PornHub {
     getToken() {
         return getToken(this.engine)
     }
-
-
 
 
     /**
