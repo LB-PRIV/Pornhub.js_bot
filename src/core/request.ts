@@ -269,7 +269,7 @@ export class Request {
         const headers = Object.assign({}, this._headers, opts.headers, {
             cookie: this.cookieString,
         })
-        console.log("url", url, "opts", opts, headers)
+        //console.log("url", url, "opts", opts, headers)
 
         const method = opts.method?.toUpperCase() || 'GET'
         debug(`[ RQST ] ${method} ${url}`)
@@ -277,7 +277,7 @@ export class Request {
         // 
         if (this._cycleTLSClient && (method === 'GET' || (method === 'POST' && (opts.body == '' || opts.body == undefined || opts.body == '{}')))) {
             
-            console.log("USING CYCLE TLS CLIENT")
+            //console.log("USING CYCLE TLS CLIENT")
             const cookieObj: {[key: string]: string} = {}
             //console.log("this._cookieStore", this._cookieStore)
             this._cookieStore.forEach((cookie, key) => {
@@ -318,12 +318,12 @@ export class Request {
                     return res.body as any
                 }
             }
-            console.log("result", result)
+            //console.log("result", result)
             // @ts-ignore
             return result
         }
 
-        console.log("url", url, "opts", opts, "headers", headers, "this._agent", this._agent)
+        //console.log("url", url, "opts", opts, "headers", headers, "this._agent", this._agent)
         const res = await fetch(url, {
             ...opts,
             headers,
