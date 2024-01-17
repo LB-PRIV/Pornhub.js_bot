@@ -33,6 +33,12 @@ export const Route = {
         return urlcat(BASE_URL, voteUrl)
     },
 
+
+    vcServer(voteUrl: string) {
+        return urlcat(BASE_URL, voteUrl)
+    },
+
+
         /**
      * @url https://www.pornhub.com/user/logout
      */

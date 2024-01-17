@@ -137,9 +137,7 @@ export class PornHub {
             // make a call to the main page to get the cookies.
             // PornHub will redirect you to a corn video if you don't have a proper cookie set.
             // See issue: [#27 Video been redirected to a corn video](https://github.com/pionxzh/Pornhub.js/issues/27)\
-            console.log("likeVideo warmup")
             await getMainPage(this.engine)
-            console.log("likeVideo warmup complete")
             this.engine.warmedUp = true
         }
         console.log("likeVideo start")
@@ -151,9 +149,7 @@ export class PornHub {
             // make a call to the main page to get the cookies.
             // PornHub will redirect you to a corn video if you don't have a proper cookie set.
             // See issue: [#27 Video been redirected to a corn video](https://github.com/pionxzh/Pornhub.js/issues/27)\
-            console.log("likeVideo warmup")
             await getMainPage(this.engine)
-            console.log("likeVideo warmup complete")
             this.engine.warmedUp = true
         }
         return rate(this.engine, urlOrId, "dislike", path)
@@ -165,9 +161,7 @@ export class PornHub {
             // make a call to the main page to get the cookies.
             // PornHub will redirect you to a corn video if you don't have a proper cookie set.
             // See issue: [#27 Video been redirected to a corn video](https://github.com/pionxzh/Pornhub.js/issues/27)\
-            console.log("likeVideo warmup")
             await getMainPage(this.engine)
-            console.log("likeVideo warmup complete")
             this.engine.warmedUp = true
         }
         return favorize(this.engine, urlOrId)
@@ -201,6 +195,17 @@ export class PornHub {
             this.engine.warmedUp = true
         }
         return videoPage(this.engine, urlOrId)
+    }
+
+    async videoDOM(urlOrId: string) {
+        if (!this.engine.warmedUp) {
+            // make a call to the main page to get the cookies.
+            // PornHub will redirect you to a corn video if you don't have a proper cookie set.
+            // See issue: [#27 Video been redirected to a corn video](https://github.com/pionxzh/Pornhub.js/issues/27)\
+            await getMainPage(this.engine)
+            this.engine.warmedUp = true
+        }
+        return videoPage(this.engine, urlOrId, true)
     }
 
     /**
