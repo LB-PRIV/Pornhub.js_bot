@@ -42,7 +42,6 @@ export async function rate(engine: Engine, urlOrId: string, voteType: "like" | "
 async function getToken(engine: Engine, urlOrId: string) {
     try {
         const html = await videoPage(engine, urlOrId, true) as string
-        fs.writeFileSync("dom.html", html)
         const $ = getCheerio(html)
         let token = $('[name="token"]').attr('value') || ''
         const redirect = $('[name="redirect"]').attr('value') || ''

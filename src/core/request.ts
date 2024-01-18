@@ -7,6 +7,7 @@ import eventEmitter from './eventEmitter'
 import type { HeadersInit, RequestInit, Response } from 'node-fetch'
 import { CycleTLSClient, CycleTLSResponse } from 'cycletls'
 import { HttpsProxyAgent } from 'https-proxy-agent'
+import {SocksProxyAgent} from "socks-proxy-agent";
 
 interface Cookie {
     value: string
@@ -47,7 +48,11 @@ export class Request {
 
     setProxy(proxy: string) {
         this._proxy = proxy;
-        this._agent = new HttpsProxyAgent(proxy);
+        if (proxy.startsWith('socks')) {
+            this._agent = new SocksProxyAgent(proxy);
+        } else {
+            this._agent = new HttpsProxyAgent(proxy);
+        }
     }
 
     setHeader(key: string, value: string) {
