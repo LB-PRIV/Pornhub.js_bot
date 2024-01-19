@@ -21,19 +21,18 @@ export async function viewVideo(engine: Engine, urlOrId: string, viewTime: numbe
             throw new Error('Failed to get video page token')
         }
         else {
-            await executeDelayed(5000, () => sendTimeWatchedEvent(engine, 5, fetchedInfos!)
-                .then(async (r: Response) => console.log(await r.text())))
-            executeDelayed((Math.random() * 100) + 600, () => sendAddCall(engine, fetchedInfos!.vcServerUrl).then(async (r: Response) => console.log(await r.text())))
+            await executeDelayed(5000, () => sendTimeWatchedEvent(engine, 5, fetchedInfos!))
+            executeDelayed((Math.random() * 100) + 600, () => sendAddCall(engine, fetchedInfos!.vcServerUrl))
 
             await executeDelayed((Math.random() * 100) + 600, async () => {
                 for (let i = 10; i < 30; i = i + 5) {
                     console.log('generating timewatched event:', i, 'seconds')
-                    await executeDelayed(5000, () => sendTimeWatchedEvent(engine, i, fetchedInfos!).then(async (r: Response) => console.log(await r.text())))
+                    await executeDelayed(5000, () => sendTimeWatchedEvent(engine, i, fetchedInfos!))
                 }
             })
 
-            await executeDelayed((Math.random() * 100) + 1000, () => sendViewedEvent(engine, fetchedInfos!).then(async (r: Response) => console.log(await r.text())))
-            await executeDelayed((Math.random() * 100) + 1000, () => sendTimeWatchedEvent(engine, viewTime, fetchedInfos!).then(async (r: Response) => console.log(await r.text())))
+            await executeDelayed((Math.random() * 100) + 1000, () => sendViewedEvent(engine, fetchedInfos!))
+            await executeDelayed((Math.random() * 100) + 1000, () => sendTimeWatchedEvent(engine, viewTime, fetchedInfos!))
         }
     }
     catch (e) {

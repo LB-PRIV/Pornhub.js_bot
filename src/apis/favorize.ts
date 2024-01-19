@@ -11,19 +11,24 @@ export interface FavouriteResult {
     success: string
 }
 
-export async function favorize(engine: Engine, urlOrId: string): Promise<FavouriteResult> {
-    const reqInfo = await getToken(engine, urlOrId)
-    const token = reqInfo.voteUrl.split('token=')[1]
-    const data = {
-        token,
-        toggle: 1,
-        id: reqInfo.itemId,
+export async function favorize(engine: Engine, urlOrId: string): Promise<FavouriteResult | undefined> {
+    try {
+        const reqInfo = await getToken(engine, urlOrId)
+        const token = reqInfo.voteUrl.split('token=')[1]
+        const data = {
+            token,
+            toggle: 1,
+            id: reqInfo.itemId,
+        }
+
+        const res = await engine.request.postForm(Route.favorize(), data)
+
+        return await res.json() as FavouriteResult
     }
-
-    const res = await engine.request.postForm(Route.favorize(), data)
-
-    const result = await res.json() as FavouriteResult
-    return result
+    catch (e) {
+        console.error(e)
+        return undefined
+    }
 }
 
 async function getToken(engine: Engine, urlOrId: string) {

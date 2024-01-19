@@ -1,16 +1,14 @@
-import {Route} from './route'
-import type {ProxyResponse} from '../../../../src/proxyFactory/proxyFactory'
-import type {Engine} from '../core/engine'
-import {VideoPageTokenInfo} from "../types/SideoPageTokenInfo";
-import {Response} from "node-fetch";
+import { Route } from './route'
+import type { Engine } from '../core/engine'
+import type { VideoPageTokenInfo } from '../types/SideoPageTokenInfo'
+import type { Response } from 'node-fetch'
 
 export async function sendAddCall(engine: Engine, vcServerUrl: string): Promise<Response> {
-    return await engine.request.get(Route.vcServer(vcServerUrl));
+    return engine.request.get(Route.vcServer(vcServerUrl))
 }
 
 export async function sendViewedEvent(engine: Engine, options: VideoPageTokenInfo): Promise<Response> {
     // `https://etahub.com/events?app_id=10896&eventName=viewed&featureName=viewed&featureValue=true&h=de.pornhub.com&msid=${pageParams.mungedSessionId}&orientation=desktopMode&osName=Windows&osVersion=10&platform=desktop&ps=videoPage&rf=${videoURL}&siteName=pornhub&vd=${pageParams.videoDuration}&vid=${pageParams.videoId}&vt=${pageParams.videoTimestamp}&ws=${pageParams.watchSessionId}`
-
     const viewedURL = new URL('https://etahub.com/events')
     viewedURL.searchParams.append('app_id', '10896')
     viewedURL.searchParams.append('eventName', 'viewed')
