@@ -104,7 +104,6 @@ export function parseByDom(html: string, $: CheerioAPI) {
     const duration = +getAttribute<number>(durationMeta, 'content', 0)
     const durationFormatted = toHHMMSS(duration)
 
-
     return {
 
         title,

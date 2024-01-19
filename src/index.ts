@@ -1,7 +1,9 @@
-import { CycleTLSClient } from 'cycletls'
 import { Route, getMainPage, login, logout, rate } from './apis'
 import { getAutoComplete } from './apis/autoComplete'
-import { getToken } from './apis/getToken'
+import { sendAddCall, sendTimeWatchedEvent, sendViewedEvent } from './apis/etahub'
+import { favorize } from './apis/favorize'
+import { getToken, getVideoPageToken } from './apis/getToken'
+import { viewVideo } from './apis/view'
 import { Engine } from './core/engine'
 import { WebMaster } from './core/webmaster'
 import { pornstarList } from './scrapers/list/pornstars'
@@ -20,8 +22,9 @@ import { pornstarSearch } from './scrapers/search/pornstar'
 import { videoSearch } from './scrapers/search/video'
 import type { AlbumSearchOptions, AutoCompleteOptions, GifSearchOptions, PornstarSearchOptions, RecommendedOptions, VideoSearchOptions } from './types'
 import type { ModelVideoListOptions, PornstarListOptions, VideoListOptions } from './types/ListOptions'
+import type { VideoPageTokenInfo } from './types/SideoPageTokenInfo'
+import type { CycleTLSClient } from 'cycletls'
 import type { RequestInit } from 'node-fetch'
-import { favorize } from './apis/favorize'
 
 export * from './types'
 export * from './utils/error'
@@ -86,6 +89,7 @@ export class PornHub {
     getCookieString() {
         return this.engine.request.getCookieString()
     }
+
     getCookies() {
         return this.engine.request.getCookies()
     }
@@ -140,10 +144,9 @@ export class PornHub {
             await getMainPage(this.engine)
             this.engine.warmedUp = true
         }
-        console.log("likeVideo start")
-        return rate(this.engine, urlOrId, "like", path)
+        return rate(this.engine, urlOrId, 'like', path)
     }
-    
+
     async dislikeVideo(urlOrId: string, path?: string) {
         if (!this.engine.warmedUp && !path) {
             // make a call to the main page to get the cookies.
@@ -152,10 +155,9 @@ export class PornHub {
             await getMainPage(this.engine)
             this.engine.warmedUp = true
         }
-        return rate(this.engine, urlOrId, "dislike", path)
+        return rate(this.engine, urlOrId, 'dislike', path)
     }
 
-    
     async favorizeVideo(urlOrId: string) {
         if (!this.engine.warmedUp) {
             // make a call to the main page to get the cookies.
@@ -166,8 +168,6 @@ export class PornHub {
         }
         return favorize(this.engine, urlOrId)
     }
-
-    
 
     /**
      * Get token from Pornhub.com.
@@ -180,7 +180,6 @@ export class PornHub {
     getToken() {
         return getToken(this.engine)
     }
-
 
     /**
      * Get video information by url/ID
@@ -206,6 +205,72 @@ export class PornHub {
             this.engine.warmedUp = true
         }
         return videoPage(this.engine, urlOrId, true)
+    }
+
+    async getVideoPageTokenInfos(urlOrId: string) {
+        if (!this.engine.warmedUp) {
+            // make a call to the main page to get the cookies.
+            // PornHub will redirect you to a corn video if you don't have a proper cookie set.
+            // See issue: [#27 Video been redirected to a corn video](https://github.com/pionxzh/Pornhub.js/issues/27)\
+            await getMainPage(this.engine)
+            this.engine.warmedUp = true
+        }
+        return getVideoPageToken(this.engine, urlOrId)
+    }
+
+    /**
+     * Sends a viewed event to the EtaHub server.
+     * This method is used to notify the EtaHub server that a video has been viewed.
+     *
+     * @async
+     * @param {VideoPageTokenInfo} options - The options for the viewed event.
+     * @returns {Promise<any>} - A promise that resolves when the viewed event has been sent.
+     */
+    async sendEtaHubViewedEvent(options: VideoPageTokenInfo): Promise<any> {
+        return sendViewedEvent(this.engine, options)
+    }
+
+    /**
+     * Sends a time watched event to the EtaHub server.
+     * This method is used to notify the EtaHub server about the duration of the video watched.
+     *
+     * @async
+     * @param {number} featureValue - The duration of the video watched.
+     * @param {VideoPageTokenInfo} options - The options for the time watched event.
+     * @returns {Promise<any>} - A promise that resolves when the time watched event has been sent.
+     */
+    async sendEtaHubTimeWatchedEvent(featureValue: number, options: VideoPageTokenInfo): Promise<any> {
+        return sendTimeWatchedEvent(this.engine, featureValue, options)
+    }
+
+    /**
+     * Sends an add call event to the EtaHub server.
+     * This method is used to notify the EtaHub server to add a call.
+     *
+     * @async
+     * @param {string} vcServerUrl - The URL of the VC server.
+     * @returns {Promise} - A promise that resolves when the add call event has been sent.
+     */
+    async sendEtaHubAddCall(vcServerUrl: string): Promise<any> {
+        return sendAddCall(this.engine, vcServerUrl)
+    }
+
+    /**
+     * Views a video on the website.
+     * This method is used to simulate viewing a video on the website for a specified duration.
+     *
+     * @async
+     * @param {string} urlOrId - The URL or ID of the video.
+     * @param {number} viewTime - The duration for which the video is viewed.
+     * @param {VideoPageTokenInfo} fetchedInfos - Optional. The fetched information about the video.
+     * @returns {Promise<any>} - A promise that resolves when the video has been viewed.
+     */
+    async viewVideo(urlOrId: string, viewTime: number, fetchedInfos?: VideoPageTokenInfo): Promise<boolean> {
+        if (!this.engine.warmedUp) {
+            await getMainPage(this.engine)
+            this.engine.warmedUp = true
+        }
+        return viewVideo(this.engine, urlOrId, viewTime, fetchedInfos)
     }
 
     /**
@@ -320,4 +385,3 @@ export class PornHub {
         return recommended(this.engine, options)
     }
 }
-
