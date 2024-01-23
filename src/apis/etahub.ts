@@ -1,10 +1,12 @@
-import { Route } from './route'
-import type { Engine } from '../core/engine'
-import type { VideoPageTokenInfo } from '../types/SideoPageTokenInfo'
-import type { Response } from 'node-fetch'
+import {Route} from './route'
+import type {Engine} from '../core/engine'
+import type {VideoPageTokenInfo} from '../types/SideoPageTokenInfo'
+import type {Response} from 'node-fetch'
 
-export async function sendAddCall(engine: Engine, vcServerUrl: string): Promise<Response> {
-    return engine.request.get(Route.vcServer(vcServerUrl))
+export async function sendAddCall(engine: Engine, vcServerUrl: string): Promise<Response | void> {
+    return engine.request.get(Route.vcServer(vcServerUrl)).catch((e) => {
+        console.error(e)
+    })
 }
 
 export async function sendViewedEvent(engine: Engine, options: VideoPageTokenInfo): Promise<Response> {
@@ -32,8 +34,7 @@ export async function sendViewedEvent(engine: Engine, options: VideoPageTokenInf
     const response = await engine.request.get(urlEncoded)
     if (!response) {
         throw new Error('failed to send viewed event')
-    }
-    else {
+    } else {
         return response
     }
 }
@@ -65,8 +66,7 @@ export async function sendTimeWatchedEvent(engine: Engine, featureValue: number,
 
     if (!response) {
         throw new Error('failed to send time watched event')
-    }
-    else {
+    } else {
         return response
     }
 }
