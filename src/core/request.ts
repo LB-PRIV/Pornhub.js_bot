@@ -31,6 +31,8 @@ type EventsMap = {
 
 export class Request {
     private _agent: RequestInit['agent']
+    private _userAgent: string = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"
+    private _platform: "mobile"|"pc" = "pc"
     private _proxy: string | undefined = undefined
     private _headers: Record<string, string> = {}
     private _cookieStore: Map<string, Cookie> = new Map()
@@ -44,6 +46,14 @@ export class Request {
 
     setAgent(agent: RequestInit['agent']) {
         this._agent = agent
+    }
+
+    setPlatform(platform: "mobile"|"pc") {
+        this._platform = platform
+    }
+
+    setUserAgent(agent: string) {
+        this._userAgent = agent
     }
 
     setProxy(proxy: string) {
@@ -73,6 +83,7 @@ export class Request {
 
     private get cookieString() {
         this._checkCookieExpired()
+        this.setCookie('platform', this._platform)
         return Array.from(this._cookieStore).map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v.value)}`).join('; ')
     }
 
@@ -82,6 +93,7 @@ export class Request {
 
     getCookies(): Record<string, string> {
         this._checkCookieExpired()
+        this.setCookie('platform', this._platform)
         return [...this._cookieStore].reduce((acc, [k, v]) => {
             acc[k] = v.value
             return acc
@@ -90,6 +102,7 @@ export class Request {
 
     getCookie(key: string): string | undefined {
         this._checkCookieExpired()
+        this.setCookie('platform', this._platform)
         return this._cookieStore.get(key)?.value
     }
 
@@ -220,6 +233,7 @@ export class Request {
             if (data) opts.body = this._buildParams<U>(data)
         }
 
+        headers['User-Agent'] = this._userAgent;
         return this.fetch(url, opts)
     }
 
@@ -272,13 +286,14 @@ export class Request {
         const headers = Object.assign({}, this._headers, opts.headers, {
             cookie: this.cookieString,
         })
+
+        this.setHeader('User-Agent', this._userAgent)
         // console.log("url", url, "opts", opts, headers)
 
         const method = opts.method?.toUpperCase() || 'GET'
         debug(`[ RQST ] ${method} ${url}`)
 
-        //
-        if (this._cycleTLSClient && (method === 'GET' || (method === 'POST' && (opts.body == '' || opts.body == undefined || opts.body == '{}')))) {
+        if (this._cycleTLSClient && (method === 'GET' || (method === 'POST' && (opts.body === '' || opts.body === undefined || opts.body === '{}')))) {
             // console.log("USING CYCLE TLS CLIENT")
             const cookieObj: { [key: string]: string } = {}
             // console.log("this._cookieStore", this._cookieStore)
@@ -286,10 +301,11 @@ export class Request {
                 cookieObj[key] = cookie.value
             })
             const res = await this._cycleTLSClient(url, {
-                body: method == 'POST' ? undefined : opts.body as string,
+                body: method === 'POST' ? undefined : opts.body as string,
                 headers,
                 cookies: cookieObj,
                 proxy: this._proxy,
+                userAgent: this._userAgent,
                 // ...(this._agent && { agent: this._agent }),
             }, method.toLowerCase() as any)
 
@@ -301,6 +317,7 @@ export class Request {
             this._handleSetCookieCycleTLS(res)
 
             const result: typeof Response = {
+                // eslint-disable-next-line ts/ban-ts-comment
                 // @ts-expect-error
                 ok: res.status === 200,
                 status: res.status,
@@ -321,6 +338,7 @@ export class Request {
                 },
             }
             // console.log("result", result)
+            // eslint-disable-next-line ts/ban-ts-comment
             // @ts-expect-error
             return result
         }

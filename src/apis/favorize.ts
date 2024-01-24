@@ -3,6 +3,7 @@ import { getCheerio } from '../utils/cheerio'
 import { Route } from './route'
 import type { Engine } from '../core/engine'
 import type { Element } from 'cheerio'
+import { getVideoPageToken } from './getToken'
 
 export interface FavouriteResult {
     action: string
@@ -11,14 +12,23 @@ export interface FavouriteResult {
     success: string
 }
 
-export async function favorize(engine: Engine, urlOrId: string): Promise<FavouriteResult | undefined> {
+export async function favorize(engine: Engine, urlOrId: string, options?: {voteUrl: string, itemId: number} ): Promise<FavouriteResult | undefined> {
     try {
-        const reqInfo = await getToken(engine, urlOrId)
-        const token = reqInfo.voteUrl.split('token=')[1]
+
+        if (!options) {
+            options = await getVideoPageToken(engine, urlOrId)
+            if (!options) {
+                throw new Error('Failed to get video page token')
+            }
+        }
+        const token = options.voteUrl?.split('token=')?.at(1)
+        if (!token) {
+            throw new Error('Failed to get token')
+        }
         const data = {
             token,
             toggle: 1,
-            id: reqInfo.itemId,
+            id: options.itemId,
         }
 
         const res = await engine.request.postForm(Route.favorize(), data)
@@ -28,29 +38,5 @@ export async function favorize(engine: Engine, urlOrId: string): Promise<Favouri
     catch (e) {
         console.error(e)
         return undefined
-    }
-}
-
-async function getToken(engine: Engine, urlOrId: string) {
-    try {
-        const html = await videoPage(engine, urlOrId, true) as string
-        const $ = getCheerio(html)
-        const token = $('[name="token"]').attr('value') || ''
-        const redirect = $('[name="redirect"]').attr('value') || ''
-        const videoActionScripts = $('div.allActionsContainer > script')
-
-        let videoActionScript: any | undefined
-        videoActionScripts.each((i: number, el: Element) => {
-            const script = $(el).text()
-            if (script.includes('WIDGET_RATINGS_LIKE_FAV ')) {
-                let text = script.split('WIDGET_RATINGS_LIKE_FAV = ')[1]
-                text = text.trim().substring(0, text.length - 2)
-                videoActionScript = JSON.parse(text.replace(/\\+/g, ''))
-            }
-        })
-        return { ...videoActionScript, token, redirect }
-    }
-    catch (err) {
-        return await Promise.reject(err)
     }
 }

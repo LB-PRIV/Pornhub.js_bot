@@ -82,6 +82,14 @@ export class PornHub {
         this.engine.request.setProxy(proxy)
     }
 
+    setUserAgent(userAgent: string) {
+        this.engine.request.setUserAgent(userAgent)
+    }
+
+    setPlatform(platform: "mobile" | "pc") {
+        this.engine.request.setPlatform(platform)
+    }
+
     setHeader(key: string, value: string) {
         this.engine.request.setHeader(key, value)
     }
@@ -158,15 +166,15 @@ export class PornHub {
         return rate(this.engine, urlOrId, 'dislike', path)
     }
 
-    async favorizeVideo(urlOrId: string) {
-        if (!this.engine.warmedUp) {
+    async favorizeVideo(urlOrId: string, options?: { voteUrl: string, itemId: number }) {
+        if (!this.engine.warmedUp && !options) {
             // make a call to the main page to get the cookies.
             // PornHub will redirect you to a corn video if you don't have a proper cookie set.
             // See issue: [#27 Video been redirected to a corn video](https://github.com/pionxzh/Pornhub.js/issues/27)\
             await getMainPage(this.engine)
             this.engine.warmedUp = true
         }
-        return favorize(this.engine, urlOrId)
+        return favorize(this.engine, urlOrId, options)
     }
 
     /**
