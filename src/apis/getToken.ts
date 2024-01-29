@@ -4,6 +4,7 @@ import { getMainPage } from './getMainPage'
 import type { Engine } from '../core/engine'
 import type { Element } from 'cheerio'
 import {VideoPageTokenInfo} from "../types/SideoPageTokenInfo";
+import fs from 'fs'
 
 export async function getToken(engine: Engine) {
     const html = await getMainPage(engine)
@@ -17,6 +18,7 @@ export async function getToken(engine: Engine) {
 export async function getVideoPageToken(engine: Engine, urlOrId: string): Promise<VideoPageTokenInfo | undefined> {
     try {
         const html = await videoPage(engine, urlOrId, true) as string
+        fs.writeFileSync("debug.html", html)
         const $ = getCheerio(html)
         let token = $('[name="token"]').attr('value') || ''
         const redirect = $('[name="redirect"]').attr('value') || ''

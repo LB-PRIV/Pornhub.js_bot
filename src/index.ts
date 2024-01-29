@@ -1,62 +1,55 @@
-import {getMainPage, login, logout, rate, Route} from './apis'
-import {getAutoComplete} from './apis/autoComplete'
-import {sendAddCall, sendTimeWatchedEvent, sendViewedEvent} from './apis/etahub'
-import {favorize} from './apis/favorize'
-import {getToken, getVideoPageToken} from './apis/getToken'
-import {viewVideo} from './apis/view'
-import {Engine} from './core/engine'
-import {WebMaster} from './core/webmaster'
-import {pornstarList} from './scrapers/list/pornstars'
-import {videoList} from './scrapers/list/videos'
-import {albumPage} from './scrapers/pages/album'
-import {modelPage, modelUploadedVideos} from './scrapers/pages/model'
-import {photoPage} from './scrapers/pages/photo'
-import {pornstarPage} from './scrapers/pages/pornstar'
-import {randomPage} from './scrapers/pages/random'
-import {recommended} from './scrapers/pages/recommended'
-import {videoPage} from './scrapers/pages/video'
-import {albumSearch} from './scrapers/search/album'
-import {gifSearch} from './scrapers/search/gif'
-import {modelSearch} from './scrapers/search/model'
-import {pornstarSearch} from './scrapers/search/pornstar'
-import {videoSearch} from './scrapers/search/video'
-import type {
-    AlbumSearchOptions,
-    AutoCompleteOptions,
-    GifSearchOptions,
-    PornstarSearchOptions,
-    RecommendedOptions,
-    VideoSearchOptions,
-} from './types'
-import type {ModelVideoListOptions, PornstarListOptions, VideoListOptions} from './types/ListOptions'
-import type {VideoPageTokenInfo} from './types/SideoPageTokenInfo'
-import type {CycleTLSClient} from 'cycletls'
-import type {RequestInit} from 'node-fetch'
+import { Route, getMainPage, login, logout, rate } from './apis'
+import { getAutoComplete } from './apis/autoComplete'
+import { sendAddCall, sendTimeWatchedEvent, sendViewedEvent } from './apis/etahub'
+import { favorize } from './apis/favorize'
+import { getToken, getVideoPageToken } from './apis/getToken'
+import { viewVideo } from './apis/view'
+import { Engine } from './core/engine'
+import { WebMaster } from './core/webmaster'
+import { pornstarList } from './scrapers/list/pornstars'
+import { videoList } from './scrapers/list/videos'
+import { albumPage } from './scrapers/pages/album'
+import { modelPage, modelUploadedVideos } from './scrapers/pages/model'
+import { photoPage } from './scrapers/pages/photo'
+import { pornstarPage } from './scrapers/pages/pornstar'
+import { randomPage } from './scrapers/pages/random'
+import { recommended } from './scrapers/pages/recommended'
+import { videoPage } from './scrapers/pages/video'
+import { albumSearch } from './scrapers/search/album'
+import { gifSearch } from './scrapers/search/gif'
+import { modelSearch } from './scrapers/search/model'
+import { pornstarSearch } from './scrapers/search/pornstar'
+import { videoSearch } from './scrapers/search/video'
+import type { AlbumSearchOptions, AutoCompleteOptions, GifSearchOptions, PornstarSearchOptions, RecommendedOptions, VideoSearchOptions } from './types'
+import type { ModelVideoListOptions, PornstarListOptions, VideoListOptions } from './types/ListOptions'
+import type { VideoPageTokenInfo } from './types/SideoPageTokenInfo'
+import type { CycleTLSClient } from 'cycletls'
+import type { RequestInit } from 'node-fetch'
 
 export * from './types'
 export * from './utils/error'
-export type {AlbumPage} from './scrapers/pages/album'
-export type {PhotoPage} from './scrapers/pages/photo'
-export type {VideoPage} from './scrapers/pages/video'
-export type {PornstarPage} from './scrapers/pages/pornstar'
-export type {ModelPage} from './scrapers/pages/model'
+export type { AlbumPage } from './scrapers/pages/album'
+export type { PhotoPage } from './scrapers/pages/photo'
+export type { VideoPage } from './scrapers/pages/video'
+export type { PornstarPage } from './scrapers/pages/pornstar'
+export type { ModelPage } from './scrapers/pages/model'
 
-export type {AlbumSearchResult} from './scrapers/search/album'
-export type {PornstarSearchResult} from './scrapers/search/pornstar'
-export type {GifSearchResult} from './scrapers/search/gif'
-export type {VideoSearchResult, VideoListResult} from './scrapers/search/video'
+export type { AlbumSearchResult } from './scrapers/search/album'
+export type { PornstarSearchResult } from './scrapers/search/pornstar'
+export type { GifSearchResult } from './scrapers/search/gif'
+export type { VideoSearchResult, VideoListResult } from './scrapers/search/video'
 
-export type {PornstarListResult} from './scrapers/list/pornstars'
+export type { PornstarListResult } from './scrapers/list/pornstars'
 
-export type {WebmasterCategory} from './apis/webmaster/categories'
-export type {WebmasterDeleted} from './apis/webmaster/deleted'
-export type {WebmasterEmbed} from './apis/webmaster/embed'
-export type {WebmasterSearch} from './apis/webmaster/search'
-export type {WebmasterStarsDetailed} from './apis/webmaster/stars_detailed'
-export type {WebmasterStars, WebmasterStar} from './apis/webmaster/stars'
-export type {WebmasterTags} from './apis/webmaster/tags'
-export type {WebmasterVideoById} from './apis/webmaster/video_by_id'
-export type {WebmasterVideoIsActive} from './apis/webmaster/video_is_active'
+export type { WebmasterCategory } from './apis/webmaster/categories'
+export type { WebmasterDeleted } from './apis/webmaster/deleted'
+export type { WebmasterEmbed } from './apis/webmaster/embed'
+export type { WebmasterSearch } from './apis/webmaster/search'
+export type { WebmasterStarsDetailed } from './apis/webmaster/stars_detailed'
+export type { WebmasterStars, WebmasterStar } from './apis/webmaster/stars'
+export type { WebmasterTags } from './apis/webmaster/tags'
+export type { WebmasterVideoById } from './apis/webmaster/video_by_id'
+export type { WebmasterVideoIsActive } from './apis/webmaster/video_is_active'
 
 export interface PornHubConfig {
     /**
@@ -91,14 +84,14 @@ export class PornHub {
     }
 
     getUsername() {
-        return this._currentUsername ?? 'anonymous'
+        return this._currentUsername??'anonymous';
     }
 
     setUserAgent(userAgent: string) {
         this.engine.request.setUserAgent(userAgent)
     }
 
-    setPlatform(platform: 'mobile' | 'pc') {
+    setPlatform(platform: "mobile" | "pc") {
         this.engine.request.setPlatform(platform)
     }
 
@@ -145,7 +138,7 @@ export class PornHub {
     async login(account: string, password: string) {
         const res = await login(this.engine, account, password)
         if (res.success) {
-            this._currentUsername = account
+            this._currentUsername = account;
         }
         return res
     }
@@ -156,7 +149,7 @@ export class PornHub {
     async logout() {
         const res = await logout(this.engine)
         if (res.success) {
-            this._currentUsername = undefined
+            this._currentUsername = undefined;
         }
         return res
     }
@@ -186,7 +179,7 @@ export class PornHub {
         return rate(this.engine, urlOrId, 'dislike', path)
     }
 
-    async favorizeVideo(urlOrId: string, options?: { voteUrl: string; itemId: number }) {
+    async favorizeVideo(urlOrId: string, options?: {voteUrl: string, itemId: number}) {
         if (!this.engine.warmedUp && !options) {
             // make a call to the main page to get the cookies.
             // PornHub will redirect you to a corn video if you don't have a proper cookie set.
